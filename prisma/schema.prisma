@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid()) // Patient's unique identifier
+  createdAt    DateTime @default(now())
+  name         String
+  age          Int
+  userUniqueId String   @unique // Unique ID to link prescriptions
+  email        String   @unique
+  password     String
+  role         Role     // Role field added to distinguish user roles
+  prescriptions Prescription[]
+}
+
+model Doctor {
+  id              String    @id @default(uuid()) // Doctor's unique identifier
+  createdAt       DateTime  @default(now())
+  name            String
+  age             Int
+  qualifications  String[]  @default([])// Array of doctor's qualifications
+  experiences     String[]   @default([])// Array of experiences (strings)
+  specialization  String    // Doctor's specialization
+  email           String    @unique
+  password        String
+  role            Role      // Role field added to distinguish user roles
+  description     String
+  prescriptions   Prescription[]
+}
+
+model Medical {
+  id          String   @id @default(uuid()) // Medical shop's unique identifier
+  createdAt   DateTime @default(now())
+  name        String
+  email       String   @unique
+  password    String
+  address     String
+  role        Role     // Role field added to distinguish user roles
+}
+
+model Prescription {
+  id          String   @id @default(uuid()) // Prescription unique ID
+  createdAt   DateTime @default(now())
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id]) // Link to doctor
+  userId      String
+  user        User     @relation(fields: [userId], references: [id]) // Link to user (patient)
+  medication  String[] // List of prescribed medications
+  notes       String?  // Optional notes from the doctor (e.g., instructions)
+}
+
+enum Role {
+  USER
+  DOCTOR
+  MEDICAL
+}
