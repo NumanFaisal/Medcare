@@ -1,7 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client"
 import bcrypt from "bcryptjs";
 import { signupSchema } from "@/app/schemas/signupSchema"
-import { NextResponse } from "next/server";
 // import { ZodError } from "zod"; // Import ZodError from zod
 
 
@@ -63,21 +62,21 @@ export async function POST(request: Request) {
                 },
             });
         } else {
-            return NextResponse.json({
+            return Response.json({
                 success: false,
                 message: "Invalid role",
             }, { status: 400 });
         }
 
         // Respond with the newly created user
-        return NextResponse.json({
+        return Response.json({
             success: true,
             message: "User created successfully",
             user: newUser
         }, { status: 201 });
 
     } catch (error) {
-        return NextResponse.json({
+        return Response.json({
             success: false,
             message: "An unexpected error occurred",
             error: error instanceof Error ? error.message : String(error),
