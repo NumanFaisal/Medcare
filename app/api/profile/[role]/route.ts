@@ -1,13 +1,22 @@
 import { PrismaClient, Role } from "@prisma/client"
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/options";
+import { authOptions } from "../../../lib/auth-options";
 
 const prisma = new PrismaClient();
 
 export async function GET(request: Request, { params }: { params: { role: string } }) {
-    const { role } = params; //Extract role from the URL path
-
+    
     try {
+
+        const { role } = params; //Extract role from the URL path
+
+        if (!role) {
+            return Response.json({
+                success: false,
+                message: "Role is required"
+            }, { status: 400 })
+        }
+
         //get the session
         const session = await getServerSession(authOptions);
 
@@ -18,10 +27,10 @@ export async function GET(request: Request, { params }: { params: { role: string
             }, { status: 401});
         }
 
-        const { email } = session.user;
+        const email = session.user.email ?? undefined;
 
         // Validate the role against the Role enum
-    if (![Role.USER, Role.DOCTOR, Role.MEDICAL].includes(role as Role)) {
+    if (!Object.values(Role).includes(role as Role)) {
         return Response.json({
             sucess: false,
             message: "Invalid role",
@@ -88,8 +97,14 @@ export async function GET(request: Request, { params }: { params: { role: string
                 success: false,
                 message: `${role.charAt(0).toUpperCase() + role.slice(1)} not found.`,
                 profile,
-            }, { status: 200 });
+            }, { status: 404 });
         }
+
+        return Response.json({
+            success: true,
+            message: "Profile fetched successfully.",
+            profile
+        }, { status: 200 })
     } catch (error) {
         console.error("Error handling profile fetch:", error);
         return Response.json({

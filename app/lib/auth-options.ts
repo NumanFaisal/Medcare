@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 type User = {
     id: string;
     email: string;
-    role: string;
+    role: "USER" | "DOCTOR" | "MEDICAL";
 };
 
 
@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
                 password: { label: 'Password', type: 'password' },
                 role: { label: 'Role', type: 'text'}, // Doctor, User, Medical Shop
             },
-            async authorize(credentials: Record<"email" | "password" | "role", string> | undefined): Promise<User> {
+            async authorize(credentials: Record<"email" | "password" | "role", string> | undefined): Promise<User | null> {
 
                 try {
                     if (!credentials) {
@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
                     return {
                         id: user.id,
                         email: user.email,
-                        role: role
+                        role: user.role
                     };
                 } catch (error) {
                     console.error(error);
@@ -72,7 +72,7 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user}) {
             if (user) {
                 token.id = user.id;
-                token.email = user.email;
+                token.email = user.email ?? undefined;
                 token.role = user.role;
             }
             return token;
