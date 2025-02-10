@@ -8,7 +8,7 @@ export async function GET(request: Request, { params }: { params: { role: string
     
     try {
 
-        const { role } = params; //Extract role from the URL path
+        const { role } = await params; //Extract role from the URL path
 
         if (!role) {
             return Response.json({
@@ -112,5 +112,6 @@ export async function GET(request: Request, { params }: { params: { role: string
             message: "An unexpected error occurred.",
             error: error instanceof Error ? error.message : String(error),
         }, { status: 500 });
+        // nothing change but only for github green dot
     }
 }

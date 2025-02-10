@@ -25,7 +25,7 @@ export default function SignInPage() {
     if (res?.error) {
       setError(res.error);
     } else {
-      router.push("/dashboard"); // ✅ Redirect after successful login
+      // router.push("/"); // ✅ Redirect after successful login
     }
   };
 
