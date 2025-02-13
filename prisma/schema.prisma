@@ -56,7 +56,7 @@ model Prescription {
   doctorId    String
   doctor      Doctor   @relation(fields: [doctorId], references: [id]) // Link to doctor
   userId      String
-  user        User     @relation(fields: [userId], references: [id]) // Link to user (patient)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Link to user (patient)
   medication  String[] // List of prescribed medications
   notes       String?  // Optional notes from the doctor (e.g., instructions)
 }
