@@ -23,6 +23,7 @@ model User {
   password     String
   role         Role     // Role field added to distinguish user roles
   prescriptions Prescription[]
+  appointments  Appointment[]
 }
 
 model Doctor {
@@ -38,6 +39,7 @@ model Doctor {
   role            Role      // Role field added to distinguish user roles
   description     String
   prescriptions   Prescription[]
+  appointments  Appointment[]
 }
 
 model Medical {
@@ -60,6 +62,18 @@ model Prescription {
   medication  String[] // List of prescribed medications
   notes       String?  // Optional notes from the doctor (e.g., instructions)
 }
+
+model Appointment {
+  id        String   @id @default(uuid()) // Appointment unique ID
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) // Link to user (patient)
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id]) // Link to doctor
+  date      DateTime // Appointment date and time
+  reason    String?  // Optional reason for appointment
+}
+
 
 enum Role {
   USER
