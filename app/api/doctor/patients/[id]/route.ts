@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         return Response.json({
             success: false,
             message: "Unauthorized",
-        }, { status: 401 })
+        }, { status: 403 });
     }
 
     const { id } = params;
