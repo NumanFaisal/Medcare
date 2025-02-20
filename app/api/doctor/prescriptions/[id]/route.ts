@@ -5,17 +5,19 @@ import { updatePrescriptionSchema } from "@/app/schemas/updatePrescriptionSchema
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
 
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return Response.json({
-            success: false,
-            message: "Unauthorized",
-        }, { status: 401 });
-    }
-
-    const { id } = params;
-
+    
     try {
+
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return Response.json({
+                success: false,
+                message: "Unauthorized",
+            }, { status: 401 });
+        }
+        
+        const { id } = params;
+
         const prescription = await prisma.prescription.findUnique({
             where: { id },
             include: {
@@ -53,15 +55,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
 
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return Response.json({
-            success: false,
-            message: "Unauthorized",
-        }, { status: 401 });
-    }
-
+    
     try {
+        
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return Response.json({
+                success: false,
+                message: "Unauthorized",
+            }, { status: 401 });
+        }
 
         const id = params.id;
         const body = await request.json();
@@ -95,4 +98,48 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         }, { status: 500 })
     }
 
+}
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+    
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "DOCTOR") {
+            return Response.json({
+                success: false,
+                message: "Unauthorized",
+            }, { status: 400 });
+        }
+
+        const id = params.id;
+
+        //Check if prescription exists 
+        const prescription = await prisma.prescription.findUnique({
+            where: { id },
+        });
+
+        if (!prescription) {
+            return Response.json({
+                success: false,
+                message: "Prescription not found",
+            }, { status: 404 });
+        }
+
+        // Delete the prescription
+        await prisma.prescription.delete({
+            where: { id },
+        });
+
+        return Response.json({
+            success: true,
+            message: "Prescription deleted successfully",
+        }, { status: 200 });
+
+    } catch (error) {
+        console.error("Error deleting prescription:", error);
+        return Response.json({
+            success: false,
+            message: "Something went wrong",
+        }, { status: 500 });
+    }
 }
