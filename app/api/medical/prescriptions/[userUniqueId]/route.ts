@@ -13,10 +13,29 @@ export async function GET(request: Request, { params }: { params: { userUniqueId
             }, { status: 401 });
         }
 
+        if (session.user.role !== "DOCTOR" && session.user.role !== "MEDICAL") {
+            return Response.json({
+                success: false,
+                message: "Forbidden: Only doctors and medical shops can view prescriptions",
+            }, { status: 403 });
+        }
+
         const { userUniqueId } = params;
 
+        const user = await prisma.user.findUnique({
+            where: { userUniqueId },
+            select: { id: true }
+        });
+
+        if (!user) {
+            return Response.json({
+                success: false,
+                message: "User not found",
+            }, { status: 404 });
+        }
+
         const prescriptions  = await prisma.prescription.findMany({
-            where: { userId: userUniqueId },
+            where: { userId: user.id },
         });
 
         if (!prescriptions.length) {
